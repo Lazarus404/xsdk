@@ -23,7 +23,7 @@
 				loginEl = document.getElementById('login'),
 				logOutEl = document.getElementById('log-out'),
 				usernameEl = document.getElementById('username'),
-  				usernameLabelEl = document.getElementById('username-label'),
+				usernameLabelEl = document.getElementById('username-label'),
 				messageEl = document.getElementById('message'),
 				sendMessageEl = document.getElementById('sendMessage'),
 				messagesEl = document.getElementById('messages'),
@@ -46,8 +46,7 @@
 				
 			var automaticAnswer = false;
 		
-			// Create a p2p object. Pass a proxy server with your ident and
-			// secret if you intend to connect securely.// Settings for video calling.
+			// Create a p2p object. This will handle the RTCPeerConnection
 			var p = new $xirsys.p2p(
 				(xirsysConnect.secureTokenRetrieval === true) ? 
 					xirsysConnect.server : null,
@@ -61,13 +60,12 @@
 			
 			var username = '';
 
-			//var peerSession;//peer whom you are chatting with.
-			var remoteChatRequest = {};//user requesting to chat
+			var remoteChatRequest = {}; //user requesting to chat
 			//if css has chatHistory display:none (hidden), set this to false else set true.
 			var chatOn = true;
 			
 
-				/* User interface handler functions */
+			/* User interface handler functions */
 			
 			// When the connect button is clicked hide log-in, check the user-
 			// name is valid, cancel automatic answers (see xirsys.p2p.js
@@ -79,6 +77,13 @@
 				if (!username || username === '') {
 					return;
 				}
+
+				var api = new $xirsys.api({
+					credentials: xirsysConnect,
+					expire: 30,
+					channel: 'TURN',
+					name: username
+				});
 
 				loginEl.parentNode.style.visibility = 'hidden';
 				logOutEl.style.visibility = 'visible';
@@ -92,7 +97,7 @@
 					connectionProperties.username = username;
 					connectionProperties.automaticAnswer = automaticAnswer;
 
-				p.open(connectionProperties);
+				p.open(api, connectionProperties);
 			};
 			
 			// Log out and reset the interface.
