@@ -6,6 +6,7 @@
 	<link rel="stylesheet" type="text/css" href="../css/style.css"></link>
 	<script src="xirsys_connect.js"></script>
 	<script src="../lib/xirsys.core.js"></script>
+	<script src="../lib/xirsys.api.js"></script>
 	<script src="../lib/xirsys.signal.js"></script>
 	<script>
 	
@@ -20,7 +21,9 @@
 				login = document.getElementById("login"),
 				login_btn = document.getElementById('login-btn'),
 				username = document.getElementById("username"),
+				channelpath = document.getElementById("channel"),
 				name = "",
+				channel = "",
 				state = 0;
 
 			// Create a signal object.
@@ -36,9 +39,18 @@
 					if (!name || name == "") {
 						return;
 					}
-					var connectionProperties = xirsysConnect.data;
-					connectionProperties.username = name;
-					s.connect(connectionProperties);
+					channel = channelpath.value.replace(/\W+/g, "");
+					if (!channel || channel == "") {
+						return;
+					}
+					var connectionProperties = Object.assign({}, xirsysConnect.data);
+					var api = new $xirsys.api({
+						credentials: xirsysConnect,
+						expire: 30,
+						channel,
+						name
+					});
+					s.connect(api, connectionProperties);
 					state = 1;
 				} else {
 					s.close();
@@ -147,7 +159,8 @@
 	<h1>Signal Demo</h1>
 	<section>
 		<form id="login" class="box">
-			Username: <input type="text" id="username" placeholder="enter a username" />
+			<div>Username: <input type="text" id="username" placeholder="enter a username" /></div>
+			<div>Channel: <input type="text" id="channel" placeholder="enter a channel" /></div>
 			<button id="login-btn" type="submit">connect</button>
 		</form>
 		<div id="peers" class="box">
